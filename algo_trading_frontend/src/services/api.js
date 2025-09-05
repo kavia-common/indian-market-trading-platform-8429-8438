@@ -14,7 +14,7 @@ function createRestClient(baseUrl) {
   async function get(path) {
     /** GET request to backend REST API. Returns JSON. */
     try {
-      const res = await fetch(`${baseUrl}${path}`, { headers });
+      const res = await window.fetch(`${baseUrl}${path}`, { headers });
       if (!res.ok) {
         throw new ApiError(`GET ${path} failed`, res.status, await res.json().catch(() => null));
       }
@@ -28,7 +28,7 @@ function createRestClient(baseUrl) {
   async function post(path, body) {
     /** POST request to backend REST API. Returns JSON. */
     try {
-      const res = await fetch(`${baseUrl}${path}`, {
+      const res = await window.fetch(`${baseUrl}${path}`, {
         method: 'POST',
         headers,
         body: JSON.stringify(body ?? {}),
@@ -46,7 +46,7 @@ function createRestClient(baseUrl) {
   async function del(path) {
     /** DELETE request to backend REST API. Returns JSON. */
     try {
-      const res = await fetch(`${baseUrl}${path}`, { method: 'DELETE', headers });
+      const res = await window.fetch(`${baseUrl}${path}`, { method: 'DELETE', headers });
       if (!res.ok) {
         throw new ApiError(`DELETE ${path} failed`, res.status, await res.json().catch(() => null));
       }
@@ -67,7 +67,7 @@ function createGraphQLClient(baseUrl) {
     uri: `${baseUrl}/graphql`,
     fetch: async (uri, options) => {
       try {
-        const response = await fetch(uri, options);
+        const response = await window.fetch(uri, options);
         if (!response.ok) {
           throw new ApiError('GraphQL request failed', response.status);
         }
@@ -106,7 +106,7 @@ export function ApiProvider({ baseUrl, children }) {
     // PUBLIC_INTERFACE
     async mockLatency(ms = 400) {
       /** Utility to simulate latency in the UI during mock mode. */
-      await new Promise(r => setTimeout(r, ms));
+      await new Promise(r => window.setTimeout(r, ms));
     }
   }), [rest, gqlClient]);
 

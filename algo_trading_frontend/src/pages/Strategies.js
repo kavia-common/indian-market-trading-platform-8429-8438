@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import WidgetCard from '../components/WidgetCard';
 import { useApi } from '../services/api';
+import { showNotification } from '../utils/notification';
 
 // PUBLIC_INTERFACE
 export default function Strategies() {
   /** Strategy management: list, create, update, delete, enable/disable. */
-  const { rest, mockLatency } = useApi();
+  const { mockLatency } = useApi();
   const [strategies, setStrategies] = useState([]);
   const [form, setForm] = useState({ name: '', type: 'trend', enabled: true, params: '{"lookback": 20, "threshold": 1.5}' });
   const [filter, setFilter] = useState('');
@@ -23,7 +24,7 @@ export default function Strategies() {
     }
     load();
     return () => { mounted = false; };
-  }, [rest, mockLatency]);
+  }, [mockLatency]);
 
   const filtered = useMemo(() => strategies.filter(s =>
     s.name.toLowerCase().includes(filter.toLowerCase()) ||
@@ -38,14 +39,28 @@ export default function Strategies() {
       ...prev
     ]);
     setForm({ name: '', type: 'trend', enabled: true, params: '{"lookback": 20, "threshold": 1.5}' });
+    showNotification('Strategy created successfully', 'success');
   }
 
   function toggleEnabled(id) {
-    setStrategies(prev => prev.map(s => s.id === id ? { ...s, enabled: !s.enabled, updatedAt: new Date().toLocaleString() } : s));
+    setStrategies(prev => {
+      const updated = prev.map(s => s.id === id ? { ...s, enabled: !s.enabled, updatedAt: new Date().toLocaleString() } : s);
+      const strategy = updated.find(s => s.id === id);
+      showNotification(`Strategy ${strategy.name} ${strategy.enabled ? 'enabled' : 'disabled'}`, 'info');
+      return updated;
+    });
   }
 
   function remove(id) {
-    setStrategies(prev => prev.filter(s => s.id !== id));
+    setStrategies(prev => {
+      const strategy = prev.find(s => s.id === id);
+      showNotification(`Strategy ${strategy.name} deleted`, 'warn');
+      return prev.filter(s => s.id !== id);
+    });
+  }
+
+  function handleEditParameters(strategy) {
+    showNotification(`Editing parameters for ${strategy.name}:\n${strategy.params || '{}'}`, 'info');
   }
 
   return (
@@ -100,7 +115,7 @@ export default function Strategies() {
                 <td>{s.updatedAt}</td>
                 <td className="row">
                   <button className="btn secondary" onClick={() => toggleEnabled(s.id)}>{s.enabled ? 'Disable' : 'Enable'}</button>
-                  <button className="btn warn" onClick={() => alert(`Edit parameters:\n${s.params || '{}'}`)}>Edit</button>
+                  <button className="btn warn" onClick={() => handleEditParameters(s)}>Edit</button>
                   <button className="btn danger" onClick={() => remove(s.id)}>Delete</button>
                 </td>
               </tr>

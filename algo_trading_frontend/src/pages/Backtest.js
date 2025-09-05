@@ -6,7 +6,7 @@ import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianG
 // PUBLIC_INTERFACE
 export default function Backtest() {
   /** Backtest runner: choose strategy, date range, params; visualize results. */
-  const { rest, mockLatency } = useApi();
+  const { mockLatency } = useApi();
   const [config, setConfig] = useState({
     strategyId: 'strat-1',
     from: '2024-01-01',

@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { showNotification } from '../utils/notification';
 
 const SocketContext = createContext(null);
 
@@ -12,36 +13,56 @@ export function SocketProvider({ url, enabled = true, children }) {
 
   const notify = useCallback((msg) => {
     const data = (() => {
-      try { return JSON.parse(msg.data); } catch { return { type: 'raw', payload: msg.data }; }
+      try { 
+        return JSON.parse(msg.data); 
+      } catch { 
+        return { type: 'raw', payload: msg.data }; 
+      }
     })();
-    subsRef.current.forEach((cb, key) => {
-      try { cb(data); } catch (e) { /* noop */ }
+    subsRef.current.forEach(cb => {
+      try { 
+        cb(data); 
+      } catch (e) { 
+        showNotification('Socket message handler error', 'error');
+      }
     });
   }, []);
 
   const connect = useCallback(() => {
+    if (!enabled || !url) return;
+    
     try {
       const ws = new WebSocket(url);
       wsRef.current = ws;
       setStatus('CONNECTING');
-      ws.onopen = () => { setStatus('CONNECTED'); backoffRef.current = 500; };
+
+      ws.onopen = () => { 
+        setStatus('CONNECTED'); 
+        backoffRef.current = 500; 
+      };
+
       ws.onmessage = notify;
+
       ws.onclose = () => {
         setStatus('DISCONNECTED');
         // exponential backoff reconnect
-        const timeout = Math.min(backoffRef.current, 6000);
-        setTimeout(() => {
-          backoffRef.current *= 2;
+        const backoff = Math.min(backoffRef.current, 6000);
+        backoffRef.current *= 2;
+        // Use window.setTimeout for browser context
+        window.setTimeout(() => {
           connect();
-        }, timeout);
+        }, backoff);
       };
+
       ws.onerror = () => {
+        showNotification('WebSocket connection error', 'error');
         ws.close();
       };
     } catch (e) {
       setStatus('ERROR');
+      showNotification('Failed to establish WebSocket connection', 'error');
     }
-  }, [notify, url]);
+  }, [notify, url, enabled]);
 
   useEffect(() => {
     if (enabled) {
@@ -65,7 +86,7 @@ export function SocketProvider({ url, enabled = true, children }) {
   const send = useCallback((obj) => {
     /** Send a JSON message over the socket if connected. */
     const ws = wsRef.current;
-    if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj));
+    if (ws?.readyState === 1) ws.send(JSON.stringify(obj));
   }, []);
 
   const ctx = useMemo(() => ({ status, subscribe, send }), [status, subscribe, send]);

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import WidgetCard from '../components/WidgetCard';
 import { useSocket } from '../services/socket';
 import { useApi } from '../services/api';
+import { showNotification } from '../utils/notification';
 
 // PUBLIC_INTERFACE
 export default function Monitor() {
@@ -34,6 +35,10 @@ export default function Monitor() {
     });
     return () => { mounted = false; unsub(); };
   }, [socket, mockLatency]);
+
+  const handleStrategyCommand = (strategy, command) => {
+    showNotification(`Sending command ${command} to ${strategy.name}`);
+  };
 
   return (
     <div className="grid" style={{ gap: 16 }}>
@@ -79,9 +84,9 @@ export default function Monitor() {
                   <td>{s.lastAction}</td>
                   <td>{s.heartbeat}</td>
                   <td className="row">
-                    <button className="btn secondary" onClick={() => alert(`Send command RESUME to ${s.name}`)}>Resume</button>
-                    <button className="btn warn" onClick={() => alert(`Send command PAUSE to ${s.name}`)}>Pause</button>
-                    <button className="btn danger" onClick={() => alert(`Send command STOP to ${s.name}`)}>Stop</button>
+                    <button className="btn secondary" onClick={() => handleStrategyCommand(s, 'RESUME')}>Resume</button>
+                    <button className="btn warn" onClick={() => handleStrategyCommand(s, 'PAUSE')}>Pause</button>
+                    <button className="btn danger" onClick={() => handleStrategyCommand(s, 'STOP')}>Stop</button>
                   </td>
                 </tr>
               ))}

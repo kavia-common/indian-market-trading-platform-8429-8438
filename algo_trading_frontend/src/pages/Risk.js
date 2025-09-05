@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import WidgetCard from '../components/WidgetCard';
 import { useApi } from '../services/api';
+import { showNotification } from '../utils/notification';
 
 // PUBLIC_INTERFACE
 export default function Risk() {
   /** Risk & compliance: policy limits, current exposure, violation logs. */
   const { mockLatency } = useApi();
   const [limits, setLimits] = useState({ maxExposureX: 5, maxOrderValue: 500000, maxDailyLoss: -25000 });
-  const [exposure, setExposure] = useState({ currentX: 3.1, orderValue: 210000, mtm: 15230 });
+  const [exposure] = useState({ currentX: 3.1, orderValue: 210000, mtm: 15230 });
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
@@ -23,16 +24,20 @@ export default function Risk() {
     return () => { mounted = false; };
   }, [mockLatency]);
 
-  function saveLimits(e) {
+  function handleSaveLimits(e) {
     e.preventDefault();
-    alert('Limits saved (placeholder).');
+    showNotification('Risk limits updated successfully', 'success');
+  }
+
+  function handleControlAction(action) {
+    showNotification(`${action} activated`, 'warn');
   }
 
   return (
     <div className="grid" style={{ gap: 16 }}>
       <div className="grid cols-3">
         <WidgetCard title="Limits">
-          <form className="grid" onSubmit={saveLimits} style={{ gap: 10 }}>
+          <form className="grid" onSubmit={handleSaveLimits} style={{ gap: 10 }}>
             <label>Max Exposure (x)</label>
             <input className="input" type="number" value={limits.maxExposureX} onChange={e => setLimits({ ...limits, maxExposureX: Number(e.target.value) })} />
             <label>Max Order Value (₹)</label>
@@ -51,8 +56,8 @@ export default function Risk() {
         </WidgetCard>
         <WidgetCard title="Controls">
           <div className="row">
-            <button className="btn warn" onClick={() => alert('Soft halt activated (placeholder).')}>Soft Halt</button>
-            <button className="btn danger" onClick={() => alert('Kill switch activated (placeholder).')}>Kill Switch</button>
+            <button className="btn warn" onClick={() => handleControlAction('Soft halt')}>Soft Halt</button>
+            <button className="btn danger" onClick={() => handleControlAction('Kill switch')}>Kill Switch</button>
           </div>
         </WidgetCard>
       </div>

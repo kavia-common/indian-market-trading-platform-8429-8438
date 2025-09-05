@@ -14,13 +14,17 @@ export default [
         document: true,
         window: true,
         test: true,
-        expect: true
+        expect: true,
+        console: true,
+        fetch: true,
+        alert: true,
+        setTimeout: true,
+        AbortController: true,
+        WebSocket: true
       }
     },
     rules: {
-
      'no-unused-vars': ['error', { varsIgnorePattern: 'React|App' }]
-
     }
   },
   pluginJs.configs.recommended,

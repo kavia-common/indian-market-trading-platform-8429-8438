@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import WidgetCard from '../components/WidgetCard';
 import { useApi } from '../services/api';
+import { showNotification } from '../utils/notification';
 
 // PUBLIC_INTERFACE
 export default function Orders() {
@@ -32,6 +33,10 @@ export default function Orders() {
     return orders.filter(o => o.status === status);
   }, [orders, status]);
 
+  const handleExport = () => {
+    showNotification('Exporting orders data to CSV...', 'info');
+  };
+
   return (
     <div className="grid" style={{ gap: 16 }}>
       <WidgetCard title="Orders" actions={
@@ -42,7 +47,7 @@ export default function Orders() {
             <option value="FILLED">Filled</option>
             <option value="CANCELLED">Cancelled</option>
           </select>
-          <button className="btn" onClick={() => alert('Exporting CSV...')}>Export</button>
+          <button className="btn" onClick={handleExport}>Export</button>
         </>
       }>
         <table className="table">
