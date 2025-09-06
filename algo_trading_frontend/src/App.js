@@ -1,47 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
+import StrategyBuilder from './pages/StrategyBuilder';
+import Backtest from './pages/Backtest';
+import Monitor from './pages/Monitor';
+import Orders from './pages/Orders';
+import RiskCompliance from './pages/RiskCompliance';
+import Navbar from './components/layout/Navbar';
+import Container from './components/layout/Container';
+import ThemeToggle from './components/common/ThemeToggle';
 
 // PUBLIC_INTERFACE
 function App() {
-  const [theme, setTheme] = useState('light');
-
-  // Effect to apply theme to document element
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
-
+  /** The main application entry that renders the Market Navigator UI with routing.
+   * Routes:
+   *  - /dashboard: Overview with KPIs and quick links
+   *  - /strategies: Strategy creation & management
+   *  - /backtest: Backtesting runner and results
+   *  - /monitor: Real-time monitoring with WebSocket updates
+   *  - /orders: Order execution tracking
+   *  - /risk: Risk and compliance visualization
+   */
   return (
     <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <BrowserRouter>
+        <Navbar />
+        <ThemeToggle />
+        <Container>
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/strategies" element={<StrategyBuilder />} />
+            <Route path="/backtest" element={<Backtest />} />
+            <Route path="/monitor" element={<Monitor />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/risk" element={<RiskCompliance />} />
+            <Route path="*" element={<div>Not Found</div>} />
+          </Routes>
+        </Container>
+      </BrowserRouter>
     </div>
   );
 }
