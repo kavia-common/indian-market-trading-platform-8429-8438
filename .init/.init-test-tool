@@ -1,0 +1,4 @@
+{
+    "command": "npm run test",
+    "working_directory": "/home/kavia/workspace/code-generation/indian-market-trading-platform-8429-8438/algo_trading_frontend"
+}
